@@ -1,11 +1,19 @@
 package com.bgp.encryption;
 
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.commons.codec.binary.Base64;
+
 import com.bgp.compression.Gzip;
 
 /**
@@ -17,16 +25,17 @@ import com.bgp.compression.Gzip;
  */
 public class Encrypt {
     private SecretKey sessionKey;
+    private SecretKey encryptedSessionKey;
     private PublicKey publicKey;
-    private byte[] encryptedSessionKey;
 
     /**
      * Ctor. Generate a session key, then encrypt the generated session key with
      * the public key
      * 
      * @param pk public key
+     * @throws Exception 
      */
-    public Encrypt(PublicKey pk) {
+    public Encrypt(PublicKey pk) throws Exception {
         publicKey = pk;
         sessionKey = generateSessionKey();
         encryptedSessionKey = encryptSessionKey();
@@ -37,37 +46,39 @@ public class Encrypt {
      * 
      * @return session key
      */
-    public static SecretKey generateSessionKey() {
+    private static SecretKey generateSessionKey() {
         KeyGenerator keyGen = null;
 
         try {
             keyGen = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
+ 
             e.printStackTrace();
         }
 
         keyGen.init(128);
-        SecretKey sessionKey = keyGen.generateKey();
-        return sessionKey;
+        SecretKey SK = keyGen.generateKey();
+        return SK;
     }
 
     /**
      * Encrypt string and return the encrypted string
      * 
-     * @param data string to encrypt
+     * @param plainText string to encrypt
      * @return encrypted string
      */
-    public String encrypt(String data) throws Exception {
+    public String encrypt(String plainText) throws Exception {
         // compress the string to encrypt
-        byte[] compressedData = Gzip.compress(data);
+        byte[] compressedData = Gzip.compress(plainText);
 
+        // encrypt data with the encrypted session key
         Cipher c = Cipher.getInstance("AES");
         c.init(Cipher.ENCRYPT_MODE, sessionKey);
-        byte[] encVal = c.doFinal(compressedData);
+        byte[] encodedData = c.doFinal(compressedData);
 
-        String encryptedString = new Base64().encodeAsString(encVal);
-        return encryptedString;
+        // encode the encrypted data as a string
+        String cipherText = new Base64().encodeAsString(encodedData);
+        return cipherText;
     }
 
     /**
@@ -75,20 +86,19 @@ public class Encrypt {
      * 
      * @param sessionKey unencrypted session key
      * @return encrypted session key
+     * @throws NoSuchPaddingException 
+     * @throws NoSuchAlgorithmException 
+     * @throws InvalidKeyException 
+     * @throws BadPaddingException 
+     * @throws IllegalBlockSizeException 
      */
-    public byte[] encryptSessionKey() {
-        byte[] encryptedSessionKey = null;
+    private SecretKey encryptSessionKey() throws Exception {
+        Cipher rsaCipher = Cipher.getInstance("RSA");
+        rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] encryptedSK = rsaCipher.doFinal(sessionKey.getEncoded());
 
-        try {
-            Cipher rsaCipher = Cipher.getInstance("RSA");
-            rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            encryptedSessionKey = rsaCipher.doFinal(sessionKey.getEncoded());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return encryptedSessionKey;
+        SecretKey encodedEncryptedSK = new SecretKeySpec(encryptedSK, 0, encryptedSK.length, "AES");
+        return encodedEncryptedSK;
     }
 
     /**
@@ -96,7 +106,7 @@ public class Encrypt {
      * 
      * @return encrypted session key
      */
-    public byte[] getEncryptedSessionKey() {
+    public SecretKey getEncryptedSessionKey() {
         return encryptedSessionKey;
     }
 }
