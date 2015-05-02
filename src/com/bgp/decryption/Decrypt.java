@@ -28,8 +28,9 @@ public class Decrypt {
      * @param pk private key
      * @throws Exception 
      */
-    public Decrypt(PrivateKey pk) throws Exception {
+    public Decrypt(PrivateKey pk, SecretKey crSK) throws Exception {
         privateKey = pk;
+        cryptedSessionKey = crSK;
         sessionKey = decryptSessionKey();
     }
     
