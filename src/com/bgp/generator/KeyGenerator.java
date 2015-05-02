@@ -1,6 +1,7 @@
 package com.bgp.generator;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -94,17 +95,12 @@ public class KeyGenerator extends KeyPairManager {
     }
     
     /**
-     * Load keypair from file
+     * Load keypair from file and return the result
+     * @throws IOException 
+     * @throws InvalidKeySpecException 
+     * @throws NoSuchAlgorithmException 
      */
-    public void load() {
-        try {
-            load("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static KeyPair loadKeyPair() throws GeneralSecurityException, IOException {
+        return load("RSA");
     }
 }
