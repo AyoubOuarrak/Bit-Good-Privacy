@@ -28,7 +28,7 @@ public class KeyPairManager {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */
-    public static KeyPair load(String algorithm) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    protected static KeyPair load(String algorithm) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         // Read Public Key.
         File filePublicKey = new File("public.key");
         FileInputStream fis = new FileInputStream("public.key");
@@ -59,7 +59,7 @@ public class KeyPairManager {
      * @param keyPair keypair to save
      * @throws IOException
      */
-    public static void save(KeyPair keyPair) throws IOException {
+    protected static void save(KeyPair keyPair) throws IOException {
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
  
