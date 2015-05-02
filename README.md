@@ -28,5 +28,16 @@ Decrypt decrypter = new Decrypt(privateKey, encryptedSessionKey);
 
 String decryptedText = decrypter.decrypt(cipherText);
 ```
-
+  
+###Save key pair into file
+```java
+// this function save into file the public and private keys
+generator.saveKeyPair();
+```
+   
+###Load key pair from file
+```java
+// this function load from file the public and private keys
+KeyPair keys = KeyGenerator.loadKeyPair();
+```
 
