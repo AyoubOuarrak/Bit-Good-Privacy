@@ -39,5 +39,11 @@ generator.saveKeyPair();
 ```java
 // this function load from file the public and private keys
 KeyPair keys = KeyGenerator.loadKeyPair();
+
+// get public key
+PublicKey pubK = keys.getPublic();
+
+//get private key
+PrivateKey piK = keys.getPrivate();
 ```
 
