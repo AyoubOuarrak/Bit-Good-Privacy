@@ -40,4 +40,30 @@ public class PublicKeyManager {
         KeyFactory fact = KeyFactory.getInstance("RSA");
         return fact.generatePublic(spec);
     }
+    
+    /**
+     * Convert public key to bytes
+     * @param key public key
+     * @return bytes
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
+     */
+    public static byte[] convertToByte(PublicKey key) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        KeyFactory fact = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec spec = fact.getKeySpec(key, X509EncodedKeySpec.class);
+        return spec.getEncoded();
+    }
+    
+    /**
+     * Convert bytes into public key
+     * @param key bytes
+     * @return public key
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public static PublicKey convertToKey(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(key);
+        KeyFactory fact = KeyFactory.getInstance("RSA");
+        return fact.generatePublic(spec);
+    }
 }

@@ -47,4 +47,31 @@ public class PrivateKeyManager {
         Arrays.fill(data, (byte) 0);
         return privK;
     }
+    
+    /**
+     * Convert to bytes
+     * @param key private key
+     * @return bytes
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public static byte[] convertToByte(PrivateKey key) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        KeyFactory fact = KeyFactory.getInstance("RSA");
+        PKCS8EncodedKeySpec spec = fact.getKeySpec(key, PKCS8EncodedKeySpec.class);
+        return spec.getEncoded();
+    }
+    
+    /**
+     * Convert to key from bytes
+     * @param key bytes
+     * @return private key
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
+     */
+    public static PrivateKey convertToKey(byte[] key) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(key);
+        KeyFactory fact = KeyFactory.getInstance("RSA");
+        PrivateKey privK = fact.generatePrivate(spec);
+        return privK;
+    }
 }

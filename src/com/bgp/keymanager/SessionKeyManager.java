@@ -2,6 +2,7 @@ package com.bgp.keymanager;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -31,5 +32,23 @@ public class SessionKeyManager {
         byte[] data = key.getEncoded();
         String sessionKey = Base64.encodeBase64String(data);
         return sessionKey;
+    }
+    
+    /**
+     * Convert key to bytes
+     * @param key
+     * @return
+     */
+    public static byte[] convertToByte(SecretKey key) {
+        return key.getEncoded();
+    }
+    
+    /**
+     * convert bytes to key
+     * @param key
+     * @return
+     */
+    public static SecretKey convertToKey(byte[] key) {
+        return new SecretKeySpec(key, 0, key.length, "AES");
     }
 }
