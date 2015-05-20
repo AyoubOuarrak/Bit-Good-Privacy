@@ -48,7 +48,7 @@ public class Decrypt {
         else decodedCipherText = customDecoding.decode(cipherText);
         
         // decrypt data using the original session key
-        Cipher c = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        Cipher c = Cipher.getInstance("AES/CBC/PKCS5PAdding");
         c.init(Cipher.DECRYPT_MODE, sessionKey);
         byte[] compressedPlainText = c.doFinal(decodedCipherText);
         
@@ -68,7 +68,7 @@ public class Decrypt {
         rsaCipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] SK = rsaCipher.doFinal(cryptedSessionKey.getEncoded());
 
-        SecretKey originalSessionKey = new SecretKeySpec(SK, 0, SK.length, "AES");
+        SecretKey originalSessionKey = new SecretKeySpec(SK, 0, SK.length, "AES/CBC/PKCS5PAdding");
         return originalSessionKey;
     }
     
