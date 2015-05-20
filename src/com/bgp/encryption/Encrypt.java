@@ -39,7 +39,20 @@ public class Encrypt {
      */
     public Encrypt(PublicKey pk) throws Exception {
         publicKey = pk;
-        sessionKey = generateSessionKey();
+        sessionKey = generateSessionKey(128);
+        encryptedSessionKey = encryptSessionKey();
+    }
+    
+    /**
+     * Ctor. Generate a session key, then encrypt the generated session key with
+     * the public key
+     * @param pk public key
+     * @param bits bits of session key
+     * @throws Exception
+     */
+    public Encrypt(PublicKey pk, int bits) throws Exception {
+        publicKey = pk;
+        sessionKey = generateSessionKey(bits);
         encryptedSessionKey = encryptSessionKey();
     }
 
@@ -48,7 +61,7 @@ public class Encrypt {
      * 
      * @return session key
      */
-    private static SecretKey generateSessionKey() {
+    private static SecretKey generateSessionKey(int bits) {
         KeyGenerator keyGen = null;
 
         try {
@@ -58,7 +71,7 @@ public class Encrypt {
             e.printStackTrace();
         }
 
-        keyGen.init(16);
+        keyGen.init(bits);
         SecretKey SK = keyGen.generateKey();
         return SK;
     }
