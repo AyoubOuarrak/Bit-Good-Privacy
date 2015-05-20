@@ -14,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.bgp.codec.EncodingMethod;
 import com.bgp.compression.Gzip;
 
 /**
@@ -27,6 +28,7 @@ public class Encrypt {
     private SecretKey sessionKey;
     private SecretKey encryptedSessionKey;
     private PublicKey publicKey;
+    private EncodingMethod customEncoding = null;
 
     /**
      * Ctor. Generate a session key, then encrypt the generated session key with
@@ -77,7 +79,10 @@ public class Encrypt {
         byte[] encodedData = c.doFinal(compressedData);
 
         // encode the encrypted data as a string
-        String cipherText = new Base64().encodeAsString(encodedData);
+        String cipherText;
+        if(customEncoding == null) cipherText = new Base64().encodeAsString(encodedData);
+        else cipherText = customEncoding.encodeAsString(encodedData);
+        
         return cipherText;
     }
 
@@ -108,5 +113,15 @@ public class Encrypt {
      */
     public SecretKey getEncryptedSessionKey() {
         return encryptedSessionKey;
+    }
+    
+    /**
+     * Sets a custom encoding method to be used instead of the
+     * default from Apache Common Codec lib.
+     * 
+     * @param method the method
+     */
+    public void setCustomEncoding(EncodingMethod method){
+    	this.customEncoding = method;
     }
 }
