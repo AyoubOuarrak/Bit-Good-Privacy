@@ -48,7 +48,7 @@ public class Decrypt {
         else decodedCipherText = customDecoding.decode(cipherText);
         
         // decrypt data using the original session key
-        Cipher c = Cipher.getInstance("AES/CBC/PKCS5PAdding");
+        Cipher c = Cipher.getInstance("AES");
         c.init(Cipher.DECRYPT_MODE, sessionKey);
         byte[] compressedPlainText = c.doFinal(decodedCipherText);
         

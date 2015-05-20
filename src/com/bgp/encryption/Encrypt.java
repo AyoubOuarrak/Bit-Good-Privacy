@@ -87,7 +87,7 @@ public class Encrypt {
         byte[] compressedData = Gzip.compress(plainText);
 
         // encrypt data with the unencrypted session key
-        Cipher c = Cipher.getInstance("AES/CCB/PKCS5Padding");
+        Cipher c = Cipher.getInstance("AES");
         c.init(Cipher.ENCRYPT_MODE, sessionKey);
         byte[] encodedData = c.doFinal(compressedData);
 
