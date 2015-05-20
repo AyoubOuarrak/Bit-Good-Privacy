@@ -64,7 +64,7 @@ public class Decrypt {
      * @return decrypted session key
      */
     private SecretKey decryptSessionKey() throws Exception {
-        Cipher rsaCipher = Cipher.getInstance("RSA");
+        Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] SK = rsaCipher.doFinal(cryptedSessionKey.getEncoded());
 

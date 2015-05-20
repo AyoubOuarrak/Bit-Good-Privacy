@@ -111,7 +111,7 @@ public class Encrypt {
      * @throws IllegalBlockSizeException 
      */
     private SecretKey encryptSessionKey() throws Exception {
-        Cipher rsaCipher = Cipher.getInstance("RSA");
+        Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedSK = rsaCipher.doFinal(sessionKey.getEncoded());
 
