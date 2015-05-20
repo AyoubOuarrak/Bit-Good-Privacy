@@ -65,7 +65,7 @@ public class Encrypt {
         KeyGenerator keyGen = null;
 
         try {
-            keyGen = KeyGenerator.getInstance("AES");
+            keyGen = KeyGenerator.getInstance("AES/ECB/PKCS5Padding");
         } catch (NoSuchAlgorithmException e) {
  
             e.printStackTrace();
@@ -87,7 +87,7 @@ public class Encrypt {
         byte[] compressedData = Gzip.compress(plainText);
 
         // encrypt data with the unencrypted session key
-        Cipher c = Cipher.getInstance("AES");
+        Cipher c = Cipher.getInstance("AES/ECB/PKCS5Padding");
         c.init(Cipher.ENCRYPT_MODE, sessionKey);
         byte[] encodedData = c.doFinal(compressedData);
 
