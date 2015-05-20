@@ -8,6 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.bgp.codec.DecodingMethod;
 import com.bgp.compression.Gzip;
 
 /**
@@ -21,6 +22,7 @@ public class Decrypt {
     private PrivateKey privateKey;
     private SecretKey cryptedSessionKey; 
     private SecretKey sessionKey;
+    private DecodingMethod customDecoding = null;
     
     /**
      * Ctor. Decrypt the session key with the private key
@@ -41,7 +43,9 @@ public class Decrypt {
      * @return decrypted string
      */
     public String decrypt(String cipherText) throws Exception {
-        byte[] decodedCipherText = new Base64().decode(cipherText);
+        byte[] decodedCipherText;
+        if(customDecoding == null) decodedCipherText = new Base64().decode(cipherText);
+        else decodedCipherText = customDecoding.decode(cipherText);
         
         // decrypt data using the original session key
         Cipher c = Cipher.getInstance("AES");
@@ -66,5 +70,16 @@ public class Decrypt {
 
         SecretKey originalSessionKey = new SecretKeySpec(SK, 0, SK.length, "AES");
         return originalSessionKey;
+    }
+    
+    
+    /**
+     * Sets a custom decoding method to be used instead of the
+     * default from Apache Common Codec lib.
+     * 
+     * @param method the method
+     */
+    public void setCustomDecoding(DecodingMethod method){
+    	this.customDecoding = method;
     }
 }
