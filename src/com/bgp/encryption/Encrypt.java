@@ -58,7 +58,7 @@ public class Encrypt {
             e.printStackTrace();
         }
 
-        keyGen.init(128);
+        keyGen.init(16);
         SecretKey SK = keyGen.generateKey();
         return SK;
     }
