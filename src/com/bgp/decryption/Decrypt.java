@@ -68,7 +68,7 @@ public class Decrypt {
         rsaCipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] SK = rsaCipher.doFinal(cryptedSessionKey.getEncoded());
 
-        SecretKey originalSessionKey = new SecretKeySpec(SK, 0, SK.length, "AES/CBC/PKCS5PAdding");
+        SecretKey originalSessionKey = new SecretKeySpec(SK, 0, SK.length, "AES");
         return originalSessionKey;
     }
     

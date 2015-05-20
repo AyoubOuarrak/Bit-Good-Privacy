@@ -65,7 +65,7 @@ public class Encrypt {
         KeyGenerator keyGen = null;
 
         try {
-            keyGen = KeyGenerator.getInstance("AES/CBC/PKCS5PAdding");
+            keyGen = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {
  
             e.printStackTrace();
@@ -87,7 +87,7 @@ public class Encrypt {
         byte[] compressedData = Gzip.compress(plainText);
 
         // encrypt data with the unencrypted session key
-        Cipher c = Cipher.getInstance("AES/CBC/PKCS5PAdding");
+        Cipher c = Cipher.getInstance("AES/CCB/PKCS5Padding");
         c.init(Cipher.ENCRYPT_MODE, sessionKey);
         byte[] encodedData = c.doFinal(compressedData);
 
@@ -115,7 +115,7 @@ public class Encrypt {
         rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedSK = rsaCipher.doFinal(sessionKey.getEncoded());
 
-        SecretKey encodedEncryptedSK = new SecretKeySpec(encryptedSK, 0, encryptedSK.length, "AES/CBC/PKCS5PAdding");
+        SecretKey encodedEncryptedSK = new SecretKeySpec(encryptedSK, 0, encryptedSK.length, "AES");
         return encodedEncryptedSK;
     }
 
