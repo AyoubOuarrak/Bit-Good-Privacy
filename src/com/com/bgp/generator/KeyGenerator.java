@@ -1,4 +1,4 @@
-    package com.bgp.generator;
+package com.bgp.generator;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -23,20 +23,18 @@ public class KeyGenerator extends KeyPairManager {
     
     /**
      * Default ctor
+     * @throws NoSuchAlgorithmException 
      */
-    public KeyGenerator() {
+    public KeyGenerator() throws NoSuchAlgorithmException {
         KeyPairGenerator kpg;
-        try {
+
             kpg = KeyPairGenerator.getInstance("RSA");
             kpg.initialize(1024);
              
             keyPair = kpg.genKeyPair();
             publicKey = keyPair.getPublic();
             privateKey = keyPair.getPrivate();
-            
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }   
+  
     }
     
    /**

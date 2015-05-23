@@ -33,7 +33,7 @@ public class Decrypt {
     public Decrypt(PrivateKey pk, SecretKey crSK) throws Exception {
         privateKey = pk;
         cryptedSessionKey = crSK;
-        sessionKey = decryptSessionKey();
+        decryptSessionKey();
     }
     
     /**
@@ -44,8 +44,11 @@ public class Decrypt {
      */
     public String decrypt(String cipherText) throws Exception {
         byte[] decodedCipherText;
-        if(customDecoding == null) decodedCipherText = new Base64().decode(cipherText);
-        else decodedCipherText = customDecoding.decode(cipherText);
+        
+        if(customDecoding == null) 
+            decodedCipherText = new Base64().decode(cipherText);
+        else 
+            decodedCipherText = customDecoding.decode(cipherText);
         
         // decrypt data using the original session key
         Cipher c = Cipher.getInstance("AES");
@@ -63,15 +66,22 @@ public class Decrypt {
      * @param sessionKey crypted session key
      * @return decrypted session key
      */
-    private SecretKey decryptSessionKey() throws Exception {
+    private void decryptSessionKey() throws Exception {
         Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] SK = rsaCipher.doFinal(cryptedSessionKey.getEncoded());
 
         SecretKey originalSessionKey = new SecretKeySpec(SK, 0, SK.length, "AES");
-        return originalSessionKey;
+        this.sessionKey = originalSessionKey;
     }
     
+    /**
+     * Return the session key
+     * @return
+     */
+    public SecretKey getSessionKey() {
+        return sessionKey;
+    }
     
     /**
      * Sets a custom decoding method to be used instead of the

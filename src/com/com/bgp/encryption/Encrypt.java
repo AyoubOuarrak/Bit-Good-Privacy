@@ -1,19 +1,10 @@
 package com.bgp.encryption;
-
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.commons.codec.binary.Base64;
-
 import com.bgp.codec.EncodingMethod;
 import com.bgp.compression.Gzip;
 
@@ -40,38 +31,45 @@ public class Encrypt {
     public Encrypt(PublicKey pk) throws Exception {
         publicKey = pk;
         sessionKey = generateSessionKey(128);
-        encryptedSessionKey = encryptSessionKey();
+        encryptSessionKey();
     }
     
     /**
-     * Ctor. Generate a session key, then encrypt the generated session key with
-     * the public key
+     * Secondary Ctor. 
      * @param pk public key
-     * @param bits bits of session key
+     * @param sK session Key
      * @throws Exception
      */
-    public Encrypt(PublicKey pk, int bits) throws Exception {
+    public Encrypt(PublicKey pk, SecretKey sK) throws Exception {
         publicKey = pk;
-        sessionKey = generateSessionKey(bits);
-        encryptedSessionKey = encryptSessionKey();
+        sessionKey = sK;
+        encryptSessionKey();
     }
 
     /**
-     * Generate a 128 bit session key
-     * 
+     * Generate a session key
+     * @param bits lenght of the key
      * @return session key
+     * @throws Exception
+     * 
      */
-    private static SecretKey generateSessionKey(int bits) {
-        KeyGenerator keyGen = null;
-
-        try {
-            keyGen = KeyGenerator.getInstance("AES");
-        } catch (NoSuchAlgorithmException e) {
- 
-            e.printStackTrace();
-        }
+    public static SecretKey generateSessionKey(int bits)  throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 
         keyGen.init(bits);
+        SecretKey SK = keyGen.generateKey();
+        return SK;
+    }
+    
+    /**
+     * Generate a 128 session key
+     * @return
+     * @throws Exception
+     */
+    public static SecretKey generateSessionKey() throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+
+        keyGen.init(128);
         SecretKey SK = keyGen.generateKey();
         return SK;
     }
@@ -99,24 +97,22 @@ public class Encrypt {
         return cipherText;
     }
 
+
     /**
      * Encrypt session key with public RSA key
      * 
      * @param sessionKey unencrypted session key
      * @return encrypted session key
-     * @throws NoSuchPaddingException 
-     * @throws NoSuchAlgorithmException 
-     * @throws InvalidKeyException 
-     * @throws BadPaddingException 
-     * @throws IllegalBlockSizeException 
+     * @throws Exception
      */
-    private SecretKey encryptSessionKey() throws Exception {
+    private void encryptSessionKey() throws Exception  {
+        
         Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedSK = rsaCipher.doFinal(sessionKey.getEncoded());
 
         SecretKey encodedEncryptedSK = new SecretKeySpec(encryptedSK, 0, encryptedSK.length, "AES");
-        return encodedEncryptedSK;
+        this.encryptedSessionKey = encodedEncryptedSK;
     }
 
     /**
@@ -126,6 +122,14 @@ public class Encrypt {
      */
     public SecretKey getEncryptedSessionKey() {
         return encryptedSessionKey;
+    }
+    
+    /**
+     * Return the session key
+     * @return
+     */
+    public SecretKey getSessionKey() {
+        return sessionKey;
     }
     
     /**
