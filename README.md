@@ -47,6 +47,17 @@ PublicKey pubK = keys.getPublic();
 PrivateKey piK = keys.getPrivate();
 ```
 
+###HMAC Autentication
+```java
+ // create a hmac object passing the blob of data
+ HmacSHA1 hmac = new HmacSHA1("hola " + "chica");
+ 
+ // add timestamp to avoid replay attack
+ hmac.addTimestamp(HmacSHA1.currentTimeStamp());
+ 
+ // generate the hmac, passing a SecretKey obj
+ hmac.hmac(key);
+```
 ##License
    
 The MIT License (MIT) 
