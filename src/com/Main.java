@@ -1,6 +1,9 @@
+package com;
+
 import com.bgp.decryption.Decrypt;
 import com.bgp.encryption.Encrypt;
 import com.bgp.generator.KeyGenerator;
+import com.bgp.hmac.HmacSHA1;
 import com.bgp.keymanager.PublicKeyManager;
 import com.bgp.keymanager.SessionKeyManager;
 
@@ -39,6 +42,17 @@ public class Main {
             System.out.println("====== Decryption ======");
             System.out.println("DECRPT: " + serverDecrypter.decrypt(clientEncrypter.encrypt("hola")));
             System.out.println("SESSION: " +SessionKeyManager.convertToString(serverDecrypter.getSessionKey()) );
+            
+            System.out.println("========== HMAC =========");
+            HmacSHA1 hmac = new HmacSHA1("hola " + "prova1");
+            hmac.addTimestamp(HmacSHA1.currentTimeStamp());
+            hmac.hmac(clientEncrypter.getSessionKey());
+            System.out.println(hmac.getBlob());
+            
+            HmacSHA1 hmac2 = new HmacSHA1("hola " + "prova1");
+            hmac2.addTimestamp(hmac.getTimestampOfHash());
+            hmac2.hmac(serverDecrypter.getSessionKey());
+            System.out.println(hmac2.getBlob());
             
         } catch (Exception e) {
             e.printStackTrace();
