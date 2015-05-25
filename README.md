@@ -56,7 +56,7 @@ PrivateKey piK = keys.getPrivate();
  hmac.addTimestamp(HmacSHA1.currentTimeStamp());
  
  // generate the hmac, passing a SecretKey obj
- hmac.hmac(key);
+ String hhhmac = hmac.hmac(key);
 ```
 ##License
    
