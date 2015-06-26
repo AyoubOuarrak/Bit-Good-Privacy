@@ -4,6 +4,7 @@ import java.security.PrivateKey;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
@@ -45,19 +46,30 @@ public class Decrypt {
     public String decrypt(String cipherText) throws Exception {
         byte[] decodedCipherText;
         
-        if(customDecoding == null) 
-            decodedCipherText = new Base64().decode(cipherText);
-        else 
-            decodedCipherText = customDecoding.decode(cipherText);
+        String iv64 = cipherText.substring(0, 16*2);
+        String cipherText64 = cipherText.substring(16*2);
+        byte[] iv;
+        IvParameterSpec ivSpec;
+        
+        if(customDecoding == null) {
+            iv = Base64.decodeBase64(iv64);
+            ivSpec = new IvParameterSpec(iv);
+            decodedCipherText = Base64.decodeBase64(cipherText64);
+        }
+        else {
+            iv = customDecoding.decode(iv64);
+            ivSpec = new IvParameterSpec(iv);
+            decodedCipherText = customDecoding.decode(cipherText64);
+        }
         
         // decrypt data using the original session key
-        Cipher c = Cipher.getInstance("AES");
-        c.init(Cipher.DECRYPT_MODE, sessionKey);
+        Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        c.init(Cipher.DECRYPT_MODE, sessionKey, ivSpec);
         byte[] compressedPlainText = c.doFinal(decodedCipherText);
         
         // decompress data
-        String plainText = Gzip.decompress(compressedPlainText);
-        return plainText;
+        //String plainText = Gzip.decompress(compressedPlainText);
+        return Gzip.decompress(compressedPlainText);
     }
 
     /**
