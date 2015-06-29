@@ -1,5 +1,5 @@
 #Bit Good Privacy 
-Java library for encryption/decryption using symmetric and asymmetric cryptography (similar to PGP) , BGP include also a utility classes to generate HMAC SHA1. BGP is very simple to use, few lines of code and you have encrypted/decrypted your data without the need of losing your mental health.
+Multiplatform Java library for encryption/decryption using symmetric and asymmetric cryptography (similar to PGP). BGP is very simple to use, few lines of code and you have encrypted/decrypted your data without the need of losing your mental health.
         
 ##How BGP works
 BGP combines some of the best features of both conventional and public key cryptography. BGP is a hybrid cryptosystem. When a user encrypts plaintext with BGP, BGP first compresses the plaintext. Data compression saves modem transmission time and disk space and, more importantly, strengthens cryptographic security. Most cryptanalysis techniques exploit patterns found in the plaintext to crack the cipher. Compression reduces these patterns in the plaintext, thereby greatly enhancing resistance to cryptanalysis. (Files that are too short to compress or which don't compress well aren't compressed.)  
@@ -60,6 +60,50 @@ PrivateKey piK = keys.getPrivate();
  // generate the hmac, passing a SecretKey obj
  String hhhmac = hmac.hmac(key);
 ```
+    
+##Example
+```java
+import com.bgp.decryption.Decrypt;
+import com.bgp.encryption.Encrypt;
+import com.bgp.generator.KeyGenerator;
+
+public class Main {
+   public static void main(String[] args) {
+        try {
+            // generate a 1024 default RSA keys for client and server
+            KeyGenerator serverG = new KeyGenerator();
+            KeyGenerator clientG = new KeyGenerator();
+            
+            // initialize the client encrypter using the server public key
+            Encrypt clientEncrypter = new Encrypt(serverG.getPublicKey());
+            
+            // encrypt your data
+            String cipherText = clientEncrypter.encrypt("hola");
+            
+            // In the other side the server initialize the decrypter using the private key, and the client 
+            // encrypted session key
+            Decrypt serverDecrytper  = new Decrypt(serverG.getPrivateKey(), 
+                                                   clientEncrypter.getEncryptedSessionKey());
+                                                   
+            System.out.println("Cipher text : " + cipherText);
+            System.out.println("Plain text : " + serverDecrytper.decrypt(cipherText));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+As you can see, the usage of BGP is very simple and very secure.
+   
+##Installation
+### Java SE / EE
+Add the jar of BGP in your buildpath, if you want to use BGP in a server side, (for example tomcat) you need to add the jar also in the lib folder of your project.   
+   
+### Android
+Add the jar of BGP in your app/libs folder, and rebuild gradle.
+   
 ##License
    
 The MIT License (MIT) 
