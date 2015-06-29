@@ -46,8 +46,8 @@ public class Decrypt {
     public String decrypt(String cipherText) throws Exception {
         byte[] decodedCipherText;
         
-        String iv64 = cipherText.substring(0, 16*2);
-        String cipherText64 = cipherText.substring(16*2);
+        String iv64 = cipherText.substring(0, cipherText.indexOf(' '));
+        String cipherText64 = cipherText.substring(cipherText.indexOf(' '));
         byte[] iv;
         IvParameterSpec ivSpec;
         

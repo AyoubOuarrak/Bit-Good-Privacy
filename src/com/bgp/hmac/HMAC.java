@@ -1,19 +1,18 @@
 package com.bgp.hmac;
 
 import java.sql.Timestamp;
-
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.commons.codec.binary.Hex;
+import com.bgp.consts.BGPConsts;
 
 /**
  * Generate HMAC-SHA1 string, signed with a secret key
  * @author Ayoub
  * 
  */
-public class HmacSHA1 {
+public class HMAC {
     private String inputValue;
     private String blob;
     private Timestamp timeOfHash;
@@ -21,7 +20,7 @@ public class HmacSHA1 {
     /**
      * Default ctor
      */
-    public HmacSHA1() {
+    public HMAC() {
         inputValue = "";
         blob = "";
         timeOfHash = null;
@@ -30,7 +29,7 @@ public class HmacSHA1 {
     /**
      * Secondary ctor
      */
-    public HmacSHA1(String input) {
+    public HMAC(String input) {
         inputValue = input;
         blob = "";
         timeOfHash = null;
@@ -149,6 +148,12 @@ public class HmacSHA1 {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public static byte[] generateMac(byte[] cipher, SecretKey key) throws Exception {
+        Mac sha256Mac = Mac.getInstance(BGPConsts.HMAC_ALGORITHM);
+        sha256Mac.init(key);
+        return sha256Mac.doFinal(cipher);
     }
 
     /**

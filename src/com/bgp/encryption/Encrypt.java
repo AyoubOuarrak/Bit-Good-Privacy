@@ -2,17 +2,17 @@ package com.bgp.encryption;
 
 import java.security.PublicKey;
 import java.security.SecureRandom;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
-
+import com.bgp.android.PrngFixes;
 import com.bgp.codec.EncodingMethod;
 import com.bgp.compression.Gzip;
+import com.bgp.consts.BGPConsts;
+import com.bgp.hmac.HMAC;
+import com.bgp.keystore.SafeStore;
 
 /**
  * Class Encrypt. First, we create a session key, we encrypt the data with the
@@ -22,10 +22,10 @@ import com.bgp.compression.Gzip;
  *
  */
 public class Encrypt {
+    SafeStore safeStore;
     private SecretKey sessionKey;
     private SecretKey cryptedSessionKey;
     private PublicKey publicKey;
-    private EncodingMethod customEncoding = null;
 
     /**
      * Ctor. Generate a session key, then encrypt the generated session key with
@@ -54,57 +54,51 @@ public class Encrypt {
 
     /**
      * Generate a session key
-     * @param bits length of the key
+     * 
      * @return session key
      * @throws Exception
      * 
      */
-    public static SecretKey generateSessionKey(int bits)  throws Exception {
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+    public static SecretKey generateSessionKey()  throws Exception {
+        if(System.getProperty("java.vm.name").equalsIgnoreCase("Dalvik")) {
+            synchronized (PrngFixes.class) {
+                PrngFixes.apply();
+            }
+        }
+        
+        KeyGenerator keyGen = KeyGenerator.getInstance(BGPConsts.CIPHER_ALGORITHM);
 
-        keyGen.init(bits);
+        keyGen.init(BGPConsts.AES_KEY_LENGTH);
         SecretKey SK = keyGen.generateKey();
         return SK;
     }
     
-    /**
-     * Generate a 128 session key
-     * @return
-     * @throws Exception
-     */
-    public static SecretKey generateSessionKey() throws Exception {
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-
-        keyGen.init(128);
-        SecretKey SK = keyGen.generateKey();
-        return SK;
+    public SafeStore encrypt(String plain) throws Exception {
+        return encrypt(plain.getBytes("UTF-8"));
     }
 
     /**
      * Encrypt string and return the encrypted string
      * 
      * @param plainText string to encrypt
-     * @return encrypted string
+     * @return SafeStore
      */
-    public String encrypt(String plainText) throws Exception {
+    public SafeStore encrypt(byte[] plainText) throws Exception {
         // compress the string to encrypt and generate the initialization vector (iv)
         byte[] compressedData = Gzip.compress(plainText);
-        byte[] iv = generateIV();
         
         // encrypt data with the unencrypted session key
-        Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        Cipher c = Cipher.getInstance(BGPConsts.CIPHER_PADDING_ALGORITHM);
+        byte[] iv = generateIV(c.getBlockSize());
         c.init(Cipher.ENCRYPT_MODE, sessionKey, new IvParameterSpec(iv));
+        
+        iv = c.getIV();
         byte[] encodedData = c.doFinal(compressedData);
-
-        // encode the encrypted data as a string
-        String cipherText;
+        byte[] civ = SafeStore.concat(iv, encodedData);
+        byte[] mac = HMAC.generateMac(civ, cryptedSessionKey);
         
-        if(customEncoding == null) 
-            cipherText = new Base64().encodeAsString(iv) + new Base64().encodeAsString(encodedData);
-        else 
-            cipherText = customEncoding.encodeAsString(iv) + customEncoding.encodeAsString(encodedData);
-        
-        return cipherText;
+        safeStore.set(encodedData, iv, mac);
+        return this.safeStore;
     }
 
 
@@ -120,7 +114,7 @@ public class Encrypt {
         rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedSK = rsaCipher.doFinal(sessionKey.getEncoded());
 
-        SecretKey encodedEncryptedSK = new SecretKeySpec(encryptedSK, 0, encryptedSK.length, "AES");
+        SecretKey encodedEncryptedSK = new SecretKeySpec(encryptedSK, 0, encryptedSK.length, BGPConsts.CIPHER_ALGORITHM);
         this.cryptedSessionKey = encodedEncryptedSK;
     }
 
@@ -149,18 +143,18 @@ public class Encrypt {
      * @param method the method
      */
     public void setCustomEncoding(EncodingMethod method){
-    	this.customEncoding = method;
+    	safeStore.setCustomEncoding(method);
     }
     
     /**
-     * Generate the initialization vector
+     * Generate a random initialization vector of 16 byte
      * 
      * @return byte[]
      */
-    public byte[] generateIV() {
+    public byte[] generateIV(int bytes) {
         try {
-            SecureRandom random = new SecureRandom();
-            byte[] iv = new byte[16];
+            SecureRandom random = SecureRandom.getInstance(BGPConsts.RANDOM_ALGORITHM);
+            byte[] iv = new byte[bytes];
             random.nextBytes(iv);
             return iv;
             
