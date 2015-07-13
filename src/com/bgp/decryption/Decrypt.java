@@ -1,14 +1,12 @@
 package com.bgp.decryption;
 
 import java.security.PrivateKey;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.commons.codec.binary.Base64;
-
+import com.bgp.codec.CustomDecoder;
 import com.bgp.codec.DecodingMethod;
 import com.bgp.compression.Gzip;
 
@@ -23,7 +21,7 @@ public class Decrypt {
     private PrivateKey privateKey;
     private SecretKey cryptedSessionKey; 
     private SecretKey sessionKey;
-    private DecodingMethod customDecoding = null;
+    private byte[] iv;
     
     /**
      * Ctor. Decrypt the session key with the private key
@@ -43,23 +41,23 @@ public class Decrypt {
      * @param cipherText encrypted string to decrypt
      * @return decrypted string
      */
-    public String decrypt(String cipherText) throws Exception {
+    public String decrypt(String civ) throws Exception {
         byte[] decodedCipherText;
         
-        String iv64 = cipherText.substring(0, cipherText.indexOf(' '));
-        String cipherText64 = cipherText.substring(cipherText.indexOf(' '));
-        byte[] iv;
+        String iv64 = civ.substring(0, civ.indexOf(':'));
+        String cipherText64 = civ.substring(civ.indexOf(':'));
+        
         IvParameterSpec ivSpec;
         
-        if(customDecoding == null) {
-            iv = Base64.decodeBase64(iv64);
+        if(CustomDecoder.isEnable()) {
+            iv = CustomDecoder.get().decode(iv64);
             ivSpec = new IvParameterSpec(iv);
-            decodedCipherText = Base64.decodeBase64(cipherText64);
+            decodedCipherText = CustomDecoder.get().decode(cipherText64);
         }
         else {
-            iv = customDecoding.decode(iv64);
+            iv = Base64.decodeBase64(iv64);
             ivSpec = new IvParameterSpec(iv);
-            decodedCipherText = customDecoding.decode(cipherText64);
+            decodedCipherText = Base64.decodeBase64(cipherText64); 
         }
         
         // decrypt data using the original session key
@@ -68,7 +66,6 @@ public class Decrypt {
         byte[] compressedPlainText = c.doFinal(decodedCipherText);
         
         // decompress data
-        //String plainText = Gzip.decompress(compressedPlainText);
         return Gzip.decompress(compressedPlainText);
     }
 
@@ -102,6 +99,6 @@ public class Decrypt {
      * @param method the method
      */
     public void setCustomDecoding(DecodingMethod method){
-    	this.customDecoding = method;
+    	CustomDecoder.set(method);
     }
 }

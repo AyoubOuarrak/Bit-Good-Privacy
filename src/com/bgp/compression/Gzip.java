@@ -23,14 +23,14 @@ public class Gzip {
      * @return array of bytes
      * @throws Exception
      */
-    public static byte[] compress(byte[] str) throws Exception {
-        if (str == null || str.length == 0) {
+    public static byte[] compress(String str) throws Exception {
+        if (str == null || str.length() == 0) {
             throw new BadStringOperationException("string is empty or null");
         }
 
         ByteArrayOutputStream obj = new ByteArrayOutputStream();
         GZIPOutputStream gzip = new GZIPOutputStream(obj);
-        gzip.write(str);
+        gzip.write(str.getBytes("UTF-8"));
         gzip.close();
 
         return obj.toByteArray();

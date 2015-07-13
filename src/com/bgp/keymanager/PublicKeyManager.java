@@ -24,7 +24,9 @@ public class PublicKeyManager {
     public static String convertToString(PublicKey publicKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
         KeyFactory fact = KeyFactory.getInstance("RSA");
         X509EncodedKeySpec spec = fact.getKeySpec(publicKey, X509EncodedKeySpec.class);
-        return Base64.encodeBase64String(spec.getEncoded());
+
+        String key = Base64.encodeBase64String(spec.getEncoded());
+        return key;
     }
     
     /**
@@ -36,6 +38,7 @@ public class PublicKeyManager {
      */
     public static PublicKey convertToKey(String stringKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] data = Base64.decodeBase64(stringKey);
+        
         X509EncodedKeySpec spec = new X509EncodedKeySpec(data);
         KeyFactory fact = KeyFactory.getInstance("RSA");
         return fact.generatePublic(spec);
